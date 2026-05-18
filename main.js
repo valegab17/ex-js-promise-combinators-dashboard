@@ -18,5 +18,3 @@ Scrivi la funzione getDashboardData(query), che deve:
     Stampare i dati in console in un messaggio ben formattato.
     Testa la funzione con la query "london"
  */
-
-    test
