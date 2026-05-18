@@ -37,27 +37,32 @@ async function fetchJson(url) {
 
 //creo la funzione getDashboardData
 const getDashboardData = async (query) => {
-    //nome città e paese
-    const promiseDestinations = fetchJson(`${API_URL}/destinations?search=${query}`);
-    //meteo attuale
-    const promiseMeteo = fetchJson(`${API_URL}/weathers?search=${query}`);
-    //aeroporto principale
-    const promiseAirport = fetchJson(`${API_URL}/airports?search=${query}`);
+    try {
+        //nome città e paese
+        const promiseDestinations = fetchJson(`${API_URL}/destinations?search=${query}`);
+        //meteo attuale
+        const promiseMeteo = fetchJson(`${API_URL}/weathers?search=${query}`);
+        //aeroporto principale
+        const promiseAirport = fetchJson(`${API_URL}/airports?search=${query}`);
 
-    //array di promesse 
-    const promises = [promiseDestinations, promiseMeteo, promiseAirport];
-    //estraggo i dati reali
-    const [destinations, weather, airport] = await Promise.all(promises);
+        //array di promesse 
+        const promises = [promiseDestinations, promiseMeteo, promiseAirport];
+        //estraggo i dati reali
+        const [destinations, weather, airport] = await Promise.all(promises);
 
-    return {
-        city: destinations[0].name,
-        country: destinations[0].country,
-        weather: weather[0].weather_description,
-        temperature: weather[0].temperature,
-        airport: airport[0].name
+        return {
+            city: destinations[0].name,
+            country: destinations[0].country,
+            weather: weather[0].weather_description,
+            temperature: weather[0].temperature,
+            airport: airport[0].name
+        }
+    } catch(error){
+        throw new Error(`Errore nel recupero dei dati: ${error.message}`)
+
     }
 }
-
+/* 
 // Esecuzione immediata (IIFE) per testare la funzione
 (async () => {
     const data = await getDashboardData('london')
@@ -67,4 +72,13 @@ const getDashboardData = async (query) => {
         Today there are ${data.temperature} degrees and the weather is ${data.weather}.
         The main airport is ${data.airport}.
         `);
-})()
+})() */
+
+    getDashboardData('london')
+    .then(data => {
+        console.log('Dashboard data:', data);
+        console.log(
+            `${data.city} is in ${data.country}.\n` + `Today there are ${data.temperature} degrees and the weather is ${data.weather}-\n`
+        );
+    })
+    .catch(error => console.error(error));
