@@ -18,3 +18,53 @@ Scrivi la funzione getDashboardData(query), che deve:
     Stampare i dati in console in un messaggio ben formattato.
     Testa la funzione con la query "london"
  */
+
+
+//salvo l'url di base dell'API
+const API_URL = "http://localhost:3333";
+
+fetch(`${API_URL}/destinations`)
+    .then(res => res.json())
+    .then(data => console.log(data));
+
+
+//faccio una chiamata fetch alla url che mi hanno dato mi servirà nella funzione getDashboardData
+async function fetchJson(url) {
+    const response = await fetch(url);
+    const obj = await response.json();
+    return obj;
+}
+
+//creo la funzione getDashboardData
+const getDashboardData = async (query) => {
+    //nome città e paese
+    const promiseDestinations = fetchJson(`${API_URL}/destinations?search=${query}`);
+    //meteo attuale
+    const promiseMeteo = fetchJson(`${API_URL}/weathers?search=${query}`);
+    //aeroporto principale
+    const promiseAirport = fetchJson(`${API_URL}/airports?search=${query}`);
+
+    //array di promesse 
+    const promises = [promiseDestinations, promiseMeteo, promiseAirport];
+    //estraggo i dati reali
+    const [destinations, weather, airport] = await Promise.all(promises);
+
+    return {
+        city: destinations[0].name,
+        country: destinations[0].country,
+        weather: weather[0].weather_description,
+        temperature: weather[0].temperature,
+        airport: airport[0].name
+    }
+}
+
+// Esecuzione immediata (IIFE) per testare la funzione
+(async () => {
+    const data = await getDashboardData('london')
+    console.log(`dashboard: `, data);
+    console.log(`
+        ${data.city} is in ${data.country}.
+        Today there are ${data.temperature} degrees and the weather is ${data.weather}.
+        The main airport is ${data.airport}.
+        `);
+})()
